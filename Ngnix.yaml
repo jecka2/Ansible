@@ -1,0 +1,48 @@
+---
+- name: Nginx install to server
+  hosts: Nginx
+  become: true
+  vars:
+    nginx_listen_port: 8080
+  tasks:
+    - name: Install system updates for Rpm-Based
+      ansible.builtin.dnf:
+        name: 'nginx'
+        Install system updates for Rpm-Based state: latest
+        update_cache: true
+        cache_valid_time: 3600
+      when:
+        - ansible_os_family == "RedHat"
+        - ansible_distribution == "CentOS"
+
+    - name: "Install system updates for ubuntu systems"
+      ansible.builtin.apt:
+        name: 'nginx'
+        state: latest
+      when:
+        - ansible_os_family == "Debian"
+        - ansible_distribution == "Ubuntu"
+
+    - name: Ensure Nginx is started and enabled
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: "Nginx file"
+      ansible.builtin.template:
+        src: services/Nginx/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: preserve
+      notify:
+        - Reload Nginx
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+        enabled: true
+    - name: Reload Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
