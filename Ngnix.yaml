@@ -10,8 +10,7 @@
         name: 'nginx'
         Install system updates for Rpm-Based state: latest
         update_cache: true
-        cache_valid_time: 3600
-      when:
+        when:
         - ansible_os_family == "RedHat"
         - ansible_distribution == "CentOS"
 
@@ -19,6 +18,7 @@
       ansible.builtin.apt:
         name: 'nginx'
         state: latest
+        update_cache: true
       when:
         - ansible_os_family == "Debian"
         - ansible_distribution == "Ubuntu"
